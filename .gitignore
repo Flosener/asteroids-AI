@@ -43,4 +43,5 @@ dist
 .vagrant
 *.egg-info/
 *.so
+.ipynb_checkpoints*
 __pycache__
