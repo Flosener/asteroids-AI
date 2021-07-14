@@ -23,6 +23,6 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect()
         
         
-    def update(self):
+    def move(self):
         """ Method to update enemy movement. """
         pass

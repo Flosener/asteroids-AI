@@ -1,15 +1,44 @@
 import pygame
+import time
 
 # import object classes
-import Player
-import Enemy
+import Player as P
+import Enemy as E
+import Bullet as B
 
 
+# global vars
+WIDTH = 1200
+HEIGHT = 700
+SCORE = 0
+
+def update_all(screen, background, player, allObjects, enemyObjects, bulletObjects):
+    """ Function to update all GUI elements and objects. 
+    
+    Args:
+    screen -- the window surface to draw on
+    allObjects -- sprite group of spawned objects in the game
+    """
+    # Draw background image onto screen at top left corner
+    screen.blit(background, (0, 0))
+    
+    # update objects and draw on screen
+    for obj in allObjects:
+        obj.move()
+    for obj in enemyObjects:
+        screen.blit(obj.img, obj.rect)
+    for obj in bulletObjects:
+        screen.blit(obj.img, obj.rect)
+    
+    # player only
+    screen.blit(player.rotated, player.rect)
+    pygame.draw.rect(screen, (255,0,0), player.rect, 2)
+    
+    pygame.display.update()
+
+    
 def main():
     """ The main function of our asteroids game. """
-    WIDTH = 1200
-    HEIGHT = 700
-    SCORE = 0
     
     # Initialize pygame
     pygame.init()
@@ -17,6 +46,7 @@ def main():
     # Fix FPS
     clock = pygame.time.Clock()
     FPS = 60
+    count = 0
 
     # Create game window screen
     screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -35,8 +65,12 @@ def main():
     display = "Congrats! Your highscore is " + str(SCORE) + "."
     game_over = font_over.render(display, True, (0,0,0))
     
-    # Adding player
-    player = Player.Player()
+    # Setup sprite groups for use in collision detection
+    objects = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    player = P.Player()
+    objects.add(player)
     
     # Main game loop
     running = True
@@ -44,34 +78,50 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                
+        keys = pygame.key.get_pressed()
         
-        # Set background color to maroon (not necessary if we use background img)
-        # screen.fill((128,0,0))
-        
-        # Blit background image onto screen at top left corner + player
-        screen.blit(bg, (0, 0))
-        screen.blit(player.img, (int(player.pos_x - player.scale/2), int(player.pos_y - player.scale/2)))
-        player.update()
+        # only every half second
+        if count >= FPS//2:
+            # shoot on space
+            if keys[pygame.K_SPACE]:
+                # spawn bullet from player and add to sprite groups for collision
+                bullet = B.Bullet(player)
+                objects.add(bullet)
+                bullets.add(bullet)
+                count = 0
         
         """
-        for obj in objects:
-            screen.blit(obj.img, obj.rect)
-            obj.move()
-        
-        # collision: draw end screen, remove all objects and end game
+        # death collision detection
         if pygame.sprite.spritecollideany(player, enemies):
             screen.blit(game_over, (WIDTH/2, HEIGHT/2))
-            #pygame.display.update()
             
+            # destroy every object
             for obj in objects:
                 obj.kill()
             running = False
+            
+        # score collision detection
+        if pygame.sprite.groupcollide(bullets, enemies, True, False):
+            SCORE += 10
+            
+            # destroy every object
+            for obj in bullets:
+                obj.kill()
+            for obj in enemies:
+                if obj.scale == 50:
+                    obj.scale = 25
+                elif obj.scale == 25:
+                    obj.scale = 10
+                else:
+                    obj.kill()
         """
         
         clock.tick(FPS)
+        count += 1
         
-        # Update all GUI elements
-        pygame.display.update()
+        # Update all objects and GUI
+        update_all(screen, bg, player, objects, enemies, bullets)
     
     # Quit the game after application is not 'running' anymore
     pygame.quit()
