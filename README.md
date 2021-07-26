@@ -5,7 +5,7 @@ Hey there! For a course at our university, we implement the ATARI 'Asteroids' ga
 ### How to use this game
 
 - Clone this repository: $ git clone https://github.com/Flosener/asteroids
-- Install required packages: $ pip install -r requirements.txt
+- Install required packages (only pygame): $ pip install pygame
 - Execute the game: $ python3 asteroids.py
 
 And that's it - have fun playing!
