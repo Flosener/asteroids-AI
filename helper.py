@@ -12,4 +12,4 @@ font_score = pygame.font.Font('Pixeltype.ttf', 30)
 again_display = font_score.render("Press 'r' to restart.", True, (255,255,255))
 
 # Hyperparameters for AI
-N_AGENTS = 2
+N_AGENTS = 10

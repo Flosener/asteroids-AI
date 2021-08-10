@@ -88,39 +88,39 @@ class AsteroidsAI(object):
         # If game is over, wait for agent to restart or quit the game
         if self.game_ended:
             # Draw background and gameover display
-            screen.blit(bg, (0, 0))
+            #BLTscreen.blit(bg, (0, 0))
             display = "GAME OVER! Your score is " + str(self.score) + "."
             gameover_display = H.font_over.render(display, True, (255,255,255))
-            screen.blit(gameover_display, (H.WIDTH/2 - gameover_display.get_width()/2, 
+            """BLTscreen.blit(gameover_display, (H.WIDTH/2 - gameover_display.get_width()/2, 
                                            H.HEIGHT/2 - gameover_display.get_height()/2))
-            screen.blit(H.again_display, (H.WIDTH/2 - H.again_display.get_width()/2, 
+            BLTscreen.blit(H.again_display, (H.WIDTH/2 - H.again_display.get_width()/2, 
                                         H.HEIGHT/2 - H.again_display.get_height()/2 
-                                        + gameover_display.get_height()))
+                                        + gameover_display.get_height()))"""
             # Restart on 'r'
             if keys[pygame.K_r]:
                 self.score = 0
                 self.agent.pos_x, self.agent.pos_y = H.WIDTH//2, H.HEIGHT//2
                 self.agent.rect = self.agent.img.get_rect(center=(self.agent.pos_x, self.agent.pos_y))
-                screen.blit(self.agent.img, self.agent.rect)
+                #BLTscreen.blit(self.agent.img, self.agent.rect)
                 self.game_ended = False
         else:
             # Draw background image onto screen at top left corner
-            screen.blit(bg, (0, 0))
-            score_display = H.font_score.render(str(self.score), True, (255,255,255))
+            #BLTscreen.blit(bg, (0, 0))
+            self.score_display = H.font_score.render(str(self.score), True, (255,255,255))
 
             # Update objects and draw on screen
             for obj in self.objects:
                 obj.move()
-                screen.blit(obj.img, obj.rect)
+                #BLTscreen.blit(obj.img, obj.rect)
 
             # get observations
             #get_obs(self.agent, self.enemies)
 
             # Draw score onto screen
-            screen.blit(score_display, (10, 10))
+            #BLTscreen.blit(score_display, (10, 10))
 
         # Increase time vars every update
-        clock.tick(H.FPS)
+        #clock.tick(H.FPS)
         self.time_count += 1
         self.shoot_count += 1
 
@@ -158,6 +158,13 @@ class AsteroidsAI(object):
         # return inputs for NN
         return angle, min_distance, closest_angle
     
+    def display(self, blit = False):
+        if blit == True:
+            screen.blit(bg, (0, 0))
+            for obj in self.objects:
+                    screen.blit(obj.img, obj.rect)
+            
+            screen.blit(self.score_display, (10, 10))
 
 # Main guard prevents running on import
 if __name__ == "__main__":
@@ -188,9 +195,17 @@ if __name__ == "__main__":
     running = True
     while running:
         for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+            if event.type == pygame.QUIT:
+                running = False
         for game in game_list:
             game.calculate_frame()
+        if len(game_list) > 0:
+            if game_list[0].game_ended == True:
+                game_list.pop(0)
+            else:
+                game_list[0].display(True)
+        else:
+            break
     # Quit the game after application is not 'running' anymore
     pygame.quit()
+
