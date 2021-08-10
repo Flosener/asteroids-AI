@@ -1,6 +1,6 @@
 import pygame
 import math
-import asteroids as M
+import helper as H
 
 def update_direction(obj):
         """ Function to update the direction the spaceship is facing. """
@@ -29,8 +29,8 @@ class Agent(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (self.scale, self.scale))
         
         # Get inital position of player in middle of screen
-        self.pos_x = M.WIDTH//2
-        self.pos_y = M.HEIGHT//2
+        self.pos_x = H.WIDTH//2
+        self.pos_y = H.HEIGHT//2
         
         # Rotation and collision rectangle
         self.angle = 0
@@ -53,12 +53,12 @@ class Agent(pygame.sprite.Sprite):
         # If player is at screen borders, it cannot move further
         if self.pos_x <= 0:
             self.pos_x = 0
-        if self.pos_x >= M.WIDTH:
-            self.pos_x = M.WIDTH
+        if self.pos_x >= H.WIDTH:
+            self.pos_x = H.WIDTH
         if self.pos_y <= 0:
             self.pos_y = 0
-        if self.pos_y >= M.HEIGHT:
-            self.pos_y = M.HEIGHT
+        if self.pos_y >= H.HEIGHT:
+            self.pos_y = H.HEIGHT
         
         keys = pygame.key.get_pressed()
         

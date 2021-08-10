@@ -1,6 +1,6 @@
 import pygame
 import Agent as A
-import asteroids as M
+import helper as H
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -29,9 +29,9 @@ class Bullet(pygame.sprite.Sprite):
     def move(self):
         """ Method to update position of bullet. """
         # Remove object at borders
-        if self.pos_x <= 0 or self.pos_x >= M.WIDTH:
+        if self.pos_x <= 0 or self.pos_x >= H.WIDTH:
             self.kill()
-        if self.pos_y <= 0 or self.pos_y >= M.HEIGHT:
+        if self.pos_y <= 0 or self.pos_y >= H.HEIGHT:
             self.kill()
         
         # Use agent's cosine and sine for updating bullet position
