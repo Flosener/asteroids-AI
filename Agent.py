@@ -15,8 +15,8 @@ def update_direction(obj):
         return obj.direction, obj.angle, obj.sin, obj.cos
 
         
-class Player(pygame.sprite.Sprite):
-    """ Player object class for the asteroids game. """
+class Agent(pygame.sprite.Sprite):
+    """ Agent object class for the asteroids game. """
     
     def __init__(self):
         """ Initialize a player object. """

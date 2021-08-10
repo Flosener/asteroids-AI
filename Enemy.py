@@ -6,13 +6,13 @@ import asteroids as M
 class Enemy(pygame.sprite.Sprite):
     """ Enemy object class for the asteroids game. """
     
-    def __init__(self, diff, scale):
+    def __init__(self, scale):
         """ Initialize an asteroid object. """
         super().__init__()
         
         # Randomly scale the enemy (small, medium or large) and assign speed accordingly
         self.scale = scale
-        self.speed = (1 if self.scale == 150 else 2 if self.scale == 100 else 3) * diff
+        self.speed = (1 if self.scale == 150 else 2 if self.scale == 100 else 3)
         # Asteroid: https://www.flaticon.com/free-icon/meteorite_4260653?term=asteroids&related_id=4260653
         self.img = pygame.image.load("images/meteorite.png")
         self.img = pygame.transform.scale(self.img, (self.scale, self.scale))

@@ -1,12 +1,12 @@
 import pygame
-import Player as P
+import Agent as A
 import asteroids as M
 
 
 class Bullet(pygame.sprite.Sprite):
     """ Bullet object class for the asteroids game. """
     
-    def __init__(self, player):
+    def __init__(self, agent):
         """ Initialize a bullet object. """
         super().__init__()
         
@@ -17,7 +17,7 @@ class Bullet(pygame.sprite.Sprite):
         self.img = pygame.transform.scale(self.img, (self.scale//2, self.scale))
         
         # Initial bullet position/rotation is the spaceship's direction/angle
-        self.direction, self.angle, self.sin, self.cos = P.update_direction(player)
+        self.direction, self.angle, self.sin, self.cos = A.update_direction(agent)
         self.pos_x, self.pos_y = self.direction
         self.img = pygame.transform.rotozoom(self.img, self.angle, 1)
         
@@ -34,7 +34,7 @@ class Bullet(pygame.sprite.Sprite):
         if self.pos_y <= 0 or self.pos_y >= M.HEIGHT:
             self.kill()
         
-        # Use player's cosine and sine for updating bullet position
+        # Use agent's cosine and sine for updating bullet position
         self.pos_x += self.cos * self.speed
         self.pos_y -= self.sin * self.speed
         self.rect = self.img.get_rect(center=(self.pos_x, self.pos_y))
