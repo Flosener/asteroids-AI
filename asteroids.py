@@ -25,116 +25,107 @@ class AsteroidsAI(object):
         self.agent = A.Agent()
         self.objects.add(self.agent)
     
-    def gameloop(self):
+    def calculate_frame(self):
         """ Main game loop of an agent. """
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+        # Get keys for input checks
+        keys = pygame.key.get_pressed()
 
-            # Get keys for input checks
-            keys = pygame.key.get_pressed()
+        # Shooting only possible three times per second
+        if self.shoot_count >= H.FPS//3:
+            # Shoot on 'space'
+            if keys[pygame.K_SPACE]:
+                # Spawn bullet from agent and add to sprite groups for collision
+                bullet = B.Bullet(self.agent)
+                self.objects.add(bullet)
+                self.bullets.add(bullet)
+                self.shoot_count = 0
 
-            # Shooting only possible three times per second
-            if self.shoot_count >= H.FPS//3:
-                # Shoot on 'space'
-                if keys[pygame.K_SPACE]:
-                    # Spawn bullet from agent and add to sprite groups for collision
-                    bullet = B.Bullet(self.agent)
-                    self.objects.add(bullet)
-                    self.bullets.add(bullet)
-                    self.shoot_count = 0
+        # Spawn enemies with random size every 3 seconds
+        if self.time_count >= H.FPS*3:
+            scale = sample([50, 100, 150], k=1)[0]
+            enemy = E.Enemy(scale)
+            self.objects.add(enemy)
+            self.enemies.add(enemy)
+            self.time_count = 0
 
-            # Spawn enemies with random size every 3 seconds
-            if self.time_count >= H.FPS*3:
-                scale = sample([50, 100, 150], k=1)[0]
-                enemy = E.Enemy(scale)
-                self.objects.add(enemy)
-                self.enemies.add(enemy)
-                self.time_count = 0
+        # Collision detection for death (agent,enemy) and score (bullet,enemy)
+        for enemy in self.enemies:
+            if pygame.sprite.collide_rect(self.agent, enemy):
+                enemy.kill()
+                # destroy every object
+                for obj in self.enemies:
+                    obj.kill()
+                self.game_ended = True
+            for bullet in self.bullets:
+                if pygame.sprite.collide_rect(bullet, enemy):
+                    self.score += 10
+                    bullet.kill()
+                    # If an enemy is shot, spawn two new, smaller enemies
+                    if enemy.scale == 150:
+                        e1 = E.Enemy(100)
+                        e2 = E.Enemy(100)
+                        e1.pos_x, e1.pos_y = enemy.pos_x, enemy.pos_y
+                        e2.pos_x, e2.pos_y = enemy.pos_x+50, enemy.pos_y+50
+                        self.enemies.add(e1)
+                        self.enemies.add(e2)
+                        self.objects.add(e1)
+                        self.objects.add(e2)
+                        enemy.kill()
+                    elif enemy.scale == 100:
+                        e1 = E.Enemy(50)
+                        e2 = E.Enemy(50)
+                        e1.pos_x, e1.pos_y = enemy.pos_x, enemy.pos_y
+                        e2.pos_x, e2.pos_y = enemy.pos_x+25, enemy.pos_y+25
+                        self.enemies.add(e1)
+                        self.enemies.add(e2)
+                        self.objects.add(e1)
+                        self.objects.add(e2)
+                        enemy.kill()
+                    else:
+                        enemy.kill()
+                        self.score += 40
 
-            # Collision detection for death (agent,enemy) and score (bullet,enemy)
-            for enemy in self.enemies:
-                if pygame.sprite.collide_rect(self.agent, enemy):
-                    enemy.kill()
-                    # destroy every object
-                    for obj in self.enemies:
-                        obj.kill()
-                    self.game_ended = True
-                for bullet in self.bullets:
-                    if pygame.sprite.collide_rect(bullet, enemy):
-                        self.score += 10
-                        bullet.kill()
-                        # If an enemy is shot, spawn two new, smaller enemies
-                        if enemy.scale == 150:
-                            e1 = E.Enemy(100)
-                            e2 = E.Enemy(100)
-                            e1.pos_x, e1.pos_y = enemy.pos_x, enemy.pos_y
-                            e2.pos_x, e2.pos_y = enemy.pos_x+50, enemy.pos_y+50
-                            self.enemies.add(e1)
-                            self.enemies.add(e2)
-                            self.objects.add(e1)
-                            self.objects.add(e2)
-                            enemy.kill()
-                        elif enemy.scale == 100:
-                            e1 = E.Enemy(50)
-                            e2 = E.Enemy(50)
-                            e1.pos_x, e1.pos_y = enemy.pos_x, enemy.pos_y
-                            e2.pos_x, e2.pos_y = enemy.pos_x+25, enemy.pos_y+25
-                            self.enemies.add(e1)
-                            self.enemies.add(e2)
-                            self.objects.add(e1)
-                            self.objects.add(e2)
-                            enemy.kill()
-                        else:
-                            enemy.kill()
-                            self.score += 40
+        # If game is over, wait for agent to restart or quit the game
+        if self.game_ended:
+            # Draw background and gameover display
+            screen.blit(bg, (0, 0))
+            display = "GAME OVER! Your score is " + str(self.score) + "."
+            gameover_display = H.font_over.render(display, True, (255,255,255))
+            screen.blit(gameover_display, (H.WIDTH/2 - gameover_display.get_width()/2, 
+                                           H.HEIGHT/2 - gameover_display.get_height()/2))
+            screen.blit(H.again_display, (H.WIDTH/2 - H.again_display.get_width()/2, 
+                                        H.HEIGHT/2 - H.again_display.get_height()/2 
+                                        + gameover_display.get_height()))
+            # Restart on 'r'
+            if keys[pygame.K_r]:
+                self.score = 0
+                self.agent.pos_x, self.agent.pos_y = H.WIDTH//2, H.HEIGHT//2
+                self.agent.rect = self.agent.img.get_rect(center=(self.agent.pos_x, self.agent.pos_y))
+                screen.blit(self.agent.img, self.agent.rect)
+                self.game_ended = False
+        else:
+            # Draw background image onto screen at top left corner
+            screen.blit(bg, (0, 0))
+            score_display = H.font_score.render(str(self.score), True, (255,255,255))
 
-            # If game is over, wait for agent to restart or quit the game
-            if self.game_ended:
-                # Draw background and gameover display
-                screen.blit(bg, (0, 0))
-                display = "GAME OVER! Your score is " + str(self.score) + "."
-                gameover_display = H.font_over.render(display, True, (255,255,255))
-                screen.blit(gameover_display, (H.WIDTH/2 - gameover_display.get_width()/2, 
-                                               H.HEIGHT/2 - gameover_display.get_height()/2))
-                screen.blit(H.again_display, (H.WIDTH/2 - H.again_display.get_width()/2, 
-                                            H.HEIGHT/2 - H.again_display.get_height()/2 
-                                            + gameover_display.get_height()))
-                # Restart on 'r'
-                if keys[pygame.K_r]:
-                    self.score = 0
-                    self.agent.pos_x, self.agent.pos_y = H.WIDTH//2, H.HEIGHT//2
-                    self.agent.rect = self.agent.img.get_rect(center=(self.agent.pos_x, self.agent.pos_y))
-                    screen.blit(self.agent.img, self.agent.rect)
-                    self.game_ended = False
-            else:
-                # Draw background image onto screen at top left corner
-                screen.blit(bg, (0, 0))
-                score_display = H.font_score.render(str(self.score), True, (255,255,255))
+            # Update objects and draw on screen
+            for obj in self.objects:
+                obj.move()
+                screen.blit(obj.img, obj.rect)
 
-                # Update objects and draw on screen
-                for obj in self.objects:
-                    obj.move()
-                    screen.blit(obj.img, obj.rect)
+            # get observations
+            #get_obs(self.agent, self.enemies)
 
-                # get observations
-                #get_obs(self.agent, self.enemies)
+            # Draw score onto screen
+            screen.blit(score_display, (10, 10))
 
-                # Draw score onto screen
-                screen.blit(score_display, (10, 10))
+        # Increase time vars every update
+        clock.tick(H.FPS)
+        self.time_count += 1
+        self.shoot_count += 1
 
-            # Increase time vars every update
-            clock.tick(H.FPS)
-            self.time_count += 1
-            self.shoot_count += 1
-
-            # Update display every frame; to-do: only update one agent's screen
-            pygame.display.update()
-
-        # Quit the game after application is not 'running' anymore
-        pygame.quit()
+        # Update display every frame; to-do: only update one agent's screen
+        pygame.display.update()
     
     def get_obs(self, agent, asteroids):
         """ Get agent observations (angle of the agent and distances to asteroids) as inputs for the NN. """
@@ -188,5 +179,18 @@ if __name__ == "__main__":
     bg = pygame.image.load("images/star_sky.jpg")
     bg = pygame.transform.scale(bg, (H.WIDTH, H.HEIGHT))
     
-    game = AsteroidsAI()
-    game.gameloop()
+    # instantiate multiple agents/games
+    game_list = []
+    for _ in range(H.N_AGENTS):
+        game = AsteroidsAI()
+        game_list.append(game)
+    
+    running = True
+    while running:
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+        for game in game_list:
+            game.calculate_frame()
+    # Quit the game after application is not 'running' anymore
+    pygame.quit()
