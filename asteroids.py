@@ -15,6 +15,7 @@ class AsteroidsAI(object):
         """ Attributes of game object. """
         self.shoot_count = 0
         self.time_count = 0
+        self.frames = 0
         self.score = 0
         self.game_ended = False
         # Setup sprite groups for use in collision detection
@@ -123,6 +124,7 @@ class AsteroidsAI(object):
         #clock.tick(H.FPS)
         self.time_count += 1
         self.shoot_count += 1
+        self.frames += 1
 
         # Update display every frame; to-do: only update one agent's screen
         pygame.display.update()
@@ -156,7 +158,7 @@ class AsteroidsAI(object):
                                              / np.dot(np.linalg.norm(np.array([u_x, u_y])), np.linalg.norm(np.array([v_x, v_y])))))
 
         # return inputs for NN
-        return angle, min_distance, closest_angle
+        return np.array([angle, min_distance, closest_angle])
     
     def display(self, blit = False):
         if blit == True:
