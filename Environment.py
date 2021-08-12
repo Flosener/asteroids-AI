@@ -2,14 +2,14 @@ import pygame
 import math
 import numpy as np
 from random import sample
-import Agent as A
+import Player as P
 import Enemy as E
 import Bullet as B
 import helper as H
 
 
-class AsteroidsAI(object):
-    """ """
+class Environment(object):
+    """ The main game loop for getting observations and displaying the training. """
     
     def __init__(self):
         """ Attributes of game object. """
@@ -23,11 +23,11 @@ class AsteroidsAI(object):
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         # Instantiate agent object
-        self.agent = A.Agent()
+        self.agent = P.Player()
         self.objects.add(self.agent)
     
     def calculate_frame(self):
-        """ Main game loop of an agent. """
+        """ Main game loop. """
         # Get keys for input checks
         keys = pygame.key.get_pressed()
 
@@ -88,15 +88,6 @@ class AsteroidsAI(object):
 
         # If game is over, wait for agent to restart or quit the game
         if self.game_ended:
-            # Draw background and gameover display
-            #BLTscreen.blit(bg, (0, 0))
-            display = "GAME OVER! Your score is " + str(self.score) + "."
-            gameover_display = H.font_over.render(display, True, (255,255,255))
-            """BLTscreen.blit(gameover_display, (H.WIDTH/2 - gameover_display.get_width()/2, 
-                                           H.HEIGHT/2 - gameover_display.get_height()/2))
-            BLTscreen.blit(H.again_display, (H.WIDTH/2 - H.again_display.get_width()/2, 
-                                        H.HEIGHT/2 - H.again_display.get_height()/2 
-                                        + gameover_display.get_height()))"""
             # Restart on 'r'
             if keys[pygame.K_r]:
                 self.score = 0
@@ -106,28 +97,25 @@ class AsteroidsAI(object):
                 self.game_ended = False
         else:
             # Draw background image onto screen at top left corner
-            #BLTscreen.blit(bg, (0, 0))
             self.score_display = H.font_score.render(str(self.score), True, (255,255,255))
 
             # Update objects and draw on screen
             for obj in self.objects:
                 obj.move()
-                #BLTscreen.blit(obj.img, obj.rect)
 
             # get observations
             #get_obs(self.agent, self.enemies)
 
-            # Draw score onto screen
-            #BLTscreen.blit(score_display, (10, 10))
-
         # Increase time vars every update
-        #clock.tick(H.FPS)
         self.time_count += 1
         self.shoot_count += 1
         self.frames += 1
 
         # Update display every frame; to-do: only update one agent's screen
         pygame.display.update()
+        
+        return self.get_obs(self.agent, self.enemies)
+    
     
     def get_obs(self, agent, asteroids):
         """ Get agent observations (angle of the agent and distances to asteroids) as inputs for the NN. """
@@ -160,54 +148,11 @@ class AsteroidsAI(object):
         # return inputs for NN
         return np.array([angle, min_distance, closest_angle])
     
-    def display(self, blit = False):
+    
+    def display(self, blit=False):
+        """ Display the game objects. """
         if blit == True:
             screen.blit(bg, (0, 0))
             for obj in self.objects:
                     screen.blit(obj.img, obj.rect)
-            
             screen.blit(self.score_display, (10, 10))
-
-# Main guard prevents running on import
-if __name__ == "__main__":
-    # Initialize pygame
-    pygame.init()
-    
-    # Fix FPS
-    clock = pygame.time.Clock()
-
-    # Create game window screen
-    screen = pygame.display.set_mode((H.WIDTH, H.HEIGHT))
-    
-    # Game title
-    pygame.display.set_caption("Asteroids")
-    # Asteroid icon: https://www.flaticon.com/free-icon/meteorite_4260653?term=asteroids&related_id=4260653
-    img = pygame.image.load("images/meteorite.png")
-    pygame.display.set_icon(img)
-    # Background: https://wallpapertag.com/wallpaper/full/a/5/b/547899-large-star-sky-wallpaper-3100x1740-4k.jpg
-    bg = pygame.image.load("images/star_sky.jpg")
-    bg = pygame.transform.scale(bg, (H.WIDTH, H.HEIGHT))
-    
-    # instantiate multiple agents/games
-    game_list = []
-    for _ in range(H.N_AGENTS):
-        game = AsteroidsAI()
-        game_list.append(game)
-    
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        for game in game_list:
-            game.calculate_frame()
-        if len(game_list) > 0:
-            if game_list[0].game_ended == True:
-                game_list.pop(0)
-            else:
-                game_list[0].display(True)
-        else:
-            break
-    # Quit the game after application is not 'running' anymore
-    pygame.quit()
-

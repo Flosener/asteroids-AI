@@ -1,12 +1,11 @@
 import pygame
-import Agent as A
 import helper as H
 
 
 class Bullet(pygame.sprite.Sprite):
     """ Bullet object class for the asteroids game. """
     
-    def __init__(self, agent):
+    def __init__(self, player):
         """ Initialize a bullet object. """
         super().__init__()
         
@@ -17,7 +16,7 @@ class Bullet(pygame.sprite.Sprite):
         self.img = pygame.transform.scale(self.img, (self.scale//2, self.scale))
         
         # Initial bullet position/rotation is the spaceship's direction/angle
-        self.direction, self.angle, self.sin, self.cos = A.update_direction(agent)
+        self.direction, self.angle, self.sin, self.cos = player.update_direction()
         self.pos_x, self.pos_y = self.direction
         self.img = pygame.transform.rotozoom(self.img, self.angle, 1)
         
