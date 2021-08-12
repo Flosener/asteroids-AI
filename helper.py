@@ -10,6 +10,11 @@ pygame.font.init()
 font_over = pygame.font.Font('Pixeltype.ttf', 60)
 font_score = pygame.font.Font('Pixeltype.ttf', 30)
 again_display = font_score.render("Press 'r' to restart.", True, (255,255,255))
+# screen and background
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+# Background: https://wallpapertag.com/wallpaper/full/a/5/b/547899-large-star-sky-wallpaper-3100x1740-4k.jpg
+bg = pygame.image.load("images/star_sky.jpg")
+bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
 
 # Hyperparameters for AI
 N_AGENTS = 10

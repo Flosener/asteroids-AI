@@ -21,14 +21,10 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     
     # pygame screen settings
-    screen = pygame.display.set_mode((H.WIDTH, H.HEIGHT))
     pygame.display.set_caption("Asteroids")
     # Asteroid icon: https://www.flaticon.com/free-icon/meteorite_4260653?term=asteroids&related_id=4260653
     img = pygame.image.load("images/meteorite.png")
     pygame.display.set_icon(img)
-    # Background: https://wallpapertag.com/wallpaper/full/a/5/b/547899-large-star-sky-wallpaper-3100x1740-4k.jpg
-    bg = pygame.image.load("images/star_sky.jpg")
-    bg = pygame.transform.scale(bg, (H.WIDTH, H.HEIGHT))
     
     # device config
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -71,10 +67,11 @@ if __name__ == "__main__":
             for i, env in enumerate(env_list):
                 if env.game_ended == False:
                     # if agent still alive, get observations (calulate_frame) and actions (forward)
-                    print(env.calculate_frame())
-                    x = torch.from_numpy(env.calculate_frame())
-                    y = agent_list[i].forward(x)
-                    print(y)
+                    x = env.calculate_frame()
+                    # if no asteroid is spawned, calculate frame will return 0 (else a numpy array)
+                    if type(x) is not int:
+                        x = torch.from_numpy(x)
+                        y = agent_list[i].forward(x)
                     if not already_displayed:
                         env.display(True)
                         already_displayed = True

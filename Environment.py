@@ -152,7 +152,7 @@ class Environment(object):
     def display(self, blit=False):
         """ Display the game objects. """
         if blit == True:
-            screen.blit(bg, (0, 0))
+            H.screen.blit(H.bg, (0, 0))
             for obj in self.objects:
-                    screen.blit(obj.img, obj.rect)
-            screen.blit(self.score_display, (10, 10))
+                    H.screen.blit(obj.img, obj.rect)
+            H.screen.blit(self.score_display, (10, 10))
