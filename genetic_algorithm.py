@@ -1,5 +1,6 @@
 import pygame
 import torch
+import numpy
 import Environment as E
 import helper as H
 import Agent as A
@@ -33,11 +34,11 @@ if __name__ == "__main__":
     # GENETIC ALGORITHM
     
     # fitness function
-    def fitness(env):
+    def evaluate(env):
         return env.frames # - (env.frames/env.score)
     
     # crossover function
-    def crossover():
+    def crossover(fitness):
         pass
     
     # mutation function
@@ -45,13 +46,21 @@ if __name__ == "__main__":
         pass
 
     # parent selection function (--> new population --> next iteration in "main"/ga-algo loop)
-    def select():
-        pass
+    def select(fitness_list):
+        parent1 = max(fitness_list)
+        fitness_list.pop(parent1.index)
+        parent2 = max(fitness_list)
+        
+        return parent1, parent2
     
     # instantiate lists for multiple agents and their NN's and their weights (genes)
     env_list = []
     agent_list = []
-    weights = []
+    params = []
+    fitness = [None] * H.N_AGENTS
+    # actions
+    y = [0,0,0]
+    # flags
     already_displayed = False
     running = True
     
@@ -68,23 +77,27 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
         
-        # one evolution step (one population)
-        if len(agent_list) > 0:
+        # run until all agents have their fitness value
+        if None in fitness:
             for i, env in enumerate(env_list):
                 if env.game_ended == False:
                     # if agent still alive, get observations (calulate_frame) and actions (forward)
-                    x = env.calculate_frame()
+                    x = env.calculate_frame(y)
                     # if no asteroid is spawned, calculate frame will return 0 (else a numpy array)
-                    if type(x) is not int:
+                    if type(x) is numpy.ndarray:
                         x = torch.from_numpy(x)
-                        print(x)
-                        y = agent_list[i].forward(x)
+                        y = agent_list[i].forward(x).detach().numpy()
                     if not already_displayed:
                         env.display(True)
                         already_displayed = True
                 else:
-                    weights[i] = agent_list[i].parameters()
-                    already_displayed = False
+                    #print(agent_list[i].parameters())
+                    #params[i] = agent_list[i].parameters()
+                    #for param in agent_list[i].parameters():
+                    #    print("i:", i, ", type:", type(param), ", size:", param.size(), ", param:", param)
+                    fitness[i] = evaluate(env)
+                print(fitness)
+            already_displayed = False
         # 
         else:
             # crossover, mutation and selection

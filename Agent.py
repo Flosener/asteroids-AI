@@ -14,6 +14,12 @@ class Agent(nn.Module):
         self.linear2 = nn.Linear(n_hidden, n_outputs)
         self.tanh = nn.Tanh()
         
+        # inheriting weights and biases from parent brains (pseudo)
+        #self.linear1.weight = weights
+        #self.linear1.bias = biases
+        #self.linear2.weight = weights
+        #self.linear2.bias = biases
+        
     def forward(self, x):
         """ Computes a forward step through the network. """
         y = self.linear1(x)

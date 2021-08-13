@@ -22,36 +22,35 @@ class Environment(object):
         self.objects = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        # Instantiate agent object
-        self.agent = P.Player()
-        self.objects.add(self.agent)
+        # Instantiate player object
+        self.player = P.Player()
+        self.objects.add(self.player)
     
-    def calculate_frame(self):
+    def calculate_frame(self, action):
         """ Main game loop. """
         # Get keys for input checks
         keys = pygame.key.get_pressed()
 
         # Shooting only possible three times per second
         if self.shoot_count >= H.FPS//3:
-            # Shoot on 'space'
-            if keys[pygame.K_SPACE]:
-                # Spawn bullet from agent and add to sprite groups for collision
-                bullet = B.Bullet(self.agent)
+            if action[0] > 0:
+                # Spawn bullet from player and add to sprite groups for collision
+                bullet = B.Bullet(self.player)
                 self.objects.add(bullet)
                 self.bullets.add(bullet)
                 self.shoot_count = 0
 
         # Spawn enemies with random size every 3 seconds
-        if self.time_count >= H.FPS*3:
+        if self.time_count >= H.FPS*1:
             scale = sample([50, 100, 150], k=1)[0]
             enemy = E.Enemy(scale)
             self.objects.add(enemy)
             self.enemies.add(enemy)
             self.time_count = 0
 
-        # Collision detection for death (agent,enemy) and score (bullet,enemy)
+        # Collision detection for death (player,enemy) and score (bullet,enemy)
         for enemy in self.enemies:
-            if pygame.sprite.collide_rect(self.agent, enemy):
+            if pygame.sprite.collide_rect(self.player, enemy):
                 enemy.kill()
                 # destroy every object
                 for obj in self.enemies:
@@ -86,14 +85,14 @@ class Environment(object):
                         enemy.kill()
                         self.score += 40
 
-        # If game is over, wait for agent to restart or quit the game
+        # If game is over, wait for player to restart or quit the game
         if self.game_ended:
             # Restart on 'r'
             if keys[pygame.K_r]:
                 self.score = 0
-                self.agent.pos_x, self.agent.pos_y = H.WIDTH//2, H.HEIGHT//2
-                self.agent.rect = self.agent.img.get_rect(center=(self.agent.pos_x, self.agent.pos_y))
-                #BLTscreen.blit(self.agent.img, self.agent.rect)
+                self.player.pos_x, self.player.pos_y = H.WIDTH//2, H.HEIGHT//2
+                self.player.rect = self.player.img.get_rect(center=(self.player.pos_x, self.player.pos_y))
+                #BLTscreen.blit(self.player.img, self.player.rect)
                 self.game_ended = False
         else:
             # Draw background image onto screen at top left corner
@@ -101,31 +100,31 @@ class Environment(object):
 
             # Update objects and draw on screen
             for obj in self.objects:
-                obj.move()
-
-            # get observations
-            #get_obs(self.agent, self.enemies)
+                if type(obj) == type(self.player):
+                    obj.move(action[1], action[2])
+                else: obj.move()
 
         # Increase time vars every update
         self.time_count += 1
         self.shoot_count += 1
         self.frames += 1
 
-        # Update display every frame; to-do: only update one agent's screen
+        # Update display every frame; to-do: only update one player's screen
         pygame.display.update()
         
-        return self.get_obs(self.agent, self.enemies)
+        print(type(self.get_obs(self.player, self.enemies)))
+        return self.get_obs(self.player, self.enemies)
     
     
-    def get_obs(self, agent, asteroids):
-        """ Get agent observations (angle of the agent and distances to asteroids) as inputs for the NN. """
-        angle = agent.angle
+    def get_obs(self, player, asteroids):
+        """ Get player observations (angle of the player and distances to asteroids) as inputs for the NN. """
+        angle = player.angle
         distances = []
         asteroids = list(asteroids)
 
-        # calculate distance to agent for each asteroid
+        # calculate distance to player for each asteroid
         for a in asteroids:
-            distance = math.sqrt((a.rect.center[0] - agent.direction[0])**2 + (a.rect.center[1] - agent.direction[1])**2) # falls nicht, dann einzeln
+            distance = math.sqrt((a.rect.center[0] - player.direction[0])**2 + (a.rect.center[1] - player.direction[1])**2) # falls nicht, dann einzeln
             distances.append(distance)
 
         if len(distances) == 0:
@@ -137,10 +136,10 @@ class Environment(object):
         a = asteroids[min_idx]
 
         # get two vectors and calculate angle between spaceship and closest asteroid
-        u_x = agent.direction[0] - agent.rect.center[0]
-        u_y = agent.direction[1] - agent.rect.center[1]
-        v_x = a.rect.center[0] - agent.direction[0]
-        v_y = a.rect.center[1] - agent.direction[1]
+        u_x = player.direction[0] - player.rect.center[0]
+        u_y = player.direction[1] - player.rect.center[1]
+        v_x = a.rect.center[0] - player.direction[0]
+        v_y = a.rect.center[1] - player.direction[1]
 
         closest_angle = math.degrees(math.acos(np.dot(np.array([u_x, u_y]), np.array([v_x, v_y]))
                                              / np.dot(np.linalg.norm(np.array([u_x, u_y])), np.linalg.norm(np.array([v_x, v_y])))))

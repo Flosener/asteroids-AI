@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
                           self.pos_y - self.sin * self.scale/2)
         
         
-    def move(self):
+    def move(self, thrust, rotate):
         """ Method to update position and rotation of our player object. """
         
         # If player is at screen borders, it cannot move further
@@ -52,18 +52,14 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         # Moving forward
-        if keys[pygame.K_w]:
+        if thrust > 0:
             self.pos_x += self.cos * self.speed
             self.pos_y -= self.sin * self.speed
             self.update_direction()
             
         # Rotating
-        if keys[pygame.K_a]:
-            self.angle += 5
-            self.update_direction()
-        if keys[pygame.K_d]:
-            self.angle -= 5
-            self.update_direction()
+        self.angle += 5 * rotate
+        self.update_direction()
     
     
     def update_direction(self):
