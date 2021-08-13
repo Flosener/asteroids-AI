@@ -33,14 +33,20 @@ if __name__ == "__main__":
     # GENETIC ALGORITHM
     
     # fitness function
-    #f = env.frames # - (game.frames/game.score)
+    def fitness(env):
+        return env.frames # - (env.frames/env.score)
     
     # crossover function
+    def crossover():
+        pass
     
-
     # mutation function
+    def mutate():
+        pass
 
     # parent selection function (--> new population --> next iteration in "main"/ga-algo loop)
+    def select():
+        pass
     
     # instantiate lists for multiple agents and their NN's and their weights (genes)
     env_list = []
@@ -71,6 +77,7 @@ if __name__ == "__main__":
                     # if no asteroid is spawned, calculate frame will return 0 (else a numpy array)
                     if type(x) is not int:
                         x = torch.from_numpy(x)
+                        print(x)
                         y = agent_list[i].forward(x)
                     if not already_displayed:
                         env.display(True)

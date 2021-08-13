@@ -146,7 +146,7 @@ class Environment(object):
                                              / np.dot(np.linalg.norm(np.array([u_x, u_y])), np.linalg.norm(np.array([v_x, v_y])))))
 
         # return inputs for NN
-        return np.array([angle, min_distance, closest_angle])
+        return np.array([angle, min_distance, closest_angle], dtype=np.float32)
     
     
     def display(self, blit=False):

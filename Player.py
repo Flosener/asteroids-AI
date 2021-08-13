@@ -55,15 +55,15 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_w]:
             self.pos_x += self.cos * self.speed
             self.pos_y -= self.sin * self.speed
-            update_direction(self)
+            self.update_direction()
             
         # Rotating
         if keys[pygame.K_a]:
             self.angle += 5
-            update_direction(self)
+            self.update_direction()
         if keys[pygame.K_d]:
             self.angle -= 5
-            update_direction(self)
+            self.update_direction()
     
     
     def update_direction(self):
