@@ -52,14 +52,15 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         # Moving forward
-        if thrust > 0:
+        if thrust > 0.95:
             self.pos_x += self.cos * self.speed
             self.pos_y -= self.sin * self.speed
             self.update_direction()
             
         # Rotating
-        self.angle += 5 * rotate
-        self.update_direction()
+        if rotate < -0.95 or rotate > 0.95:
+            self.angle += 5 * rotate
+            self.update_direction()
     
     
     def update_direction(self):

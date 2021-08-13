@@ -33,7 +33,7 @@ class Environment(object):
 
         # Shooting only possible three times per second
         if self.shoot_count >= H.FPS//3:
-            if action[0] > 0:
+            if action[0] > 0.95:
                 # Spawn bullet from player and add to sprite groups for collision
                 bullet = B.Bullet(self.player)
                 self.objects.add(bullet)
@@ -112,7 +112,6 @@ class Environment(object):
         # Update display every frame; to-do: only update one player's screen
         pygame.display.update()
         
-        print(type(self.get_obs(self.player, self.enemies)))
         return self.get_obs(self.player, self.enemies)
     
     
