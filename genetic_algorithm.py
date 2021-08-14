@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # fitness function
     def evaluate(env):
         """ Evaluate the fitness of an agent. """
-        return env.frames # - (env.frames/env.score)
+        return env.frames + env.score/env.frames# - (env.frames/env.score)
 
 
     # parent selection function (--> new population --> next iteration in "main"/ga-algo loop)
@@ -123,6 +123,7 @@ if __name__ == "__main__":
     # mutation function
     def mutate(old_pop):
         """ Swap two genes on a child's chromosome with a small probability. """
+        '''
         new_pop = old_pop
         for child in range(len(new_pop)):
             rnd = random.uniform(0,1)
@@ -132,7 +133,22 @@ if __name__ == "__main__":
                 dummy = old_pop[i,gene1]
                 new_pop[i,gene1] = old_pop[i,gene2]
                 new_pop[i,gene2] = dummy
+        '''
         
+        new_pop = old_pop
+        for child in range(len(new_pop)):
+            for gene in range(38):
+                rnd = random.uniform(0,1)  #num of genes
+                if rnd <= 0.9:
+                    rnd = random.uniform(0.1,0.5)
+                    sign = [1,-1]
+                    sampled_sign = random.choice(sign)
+                    new_pop[child,gene] += new_pop[child,gene] * rnd * sampled_sign
+        
+        #for chil in range(len(new_pop)):
+            #rnd = random.uniform(0,1)
+            #if rnd >= 0.9:
+
         #print("after mutation:", new_pop)
         return new_pop
     
@@ -167,7 +183,8 @@ if __name__ == "__main__":
                     b2 = agent_list[i].linear2.bias.detach().numpy().flatten()
 
                     params[i,:] = np.concatenate((w1, w2, b1, b2))
-                    fitness[i] = evaluate(env)
+                    
+                    fitness[i] = evaluate(env) 
 
             already_displayed = False
             

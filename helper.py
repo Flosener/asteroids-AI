@@ -17,7 +17,7 @@ bg = pygame.image.load("images/star_sky.jpg")
 bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
 
 # Hyperparameters for AI
-N_AGENTS = 3
+N_AGENTS = 10
 N_INPUTS = 3
 N_HIDDEN = 5
 N_OUTPUTS = 3
