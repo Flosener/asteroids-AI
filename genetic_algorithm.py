@@ -147,6 +147,10 @@ if __name__ == "__main__":
                 if event.type == pygame.QUIT:
                     running = False
         
+        # end if number of epochs is reached
+        if gen_counter <= H.N_EPOCHS:
+            break
+        
         # for one population
         if None in fitness:
             for i, env in enumerate(env_list):
