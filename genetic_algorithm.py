@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # fitness function
     def evaluate(env):
         """ Evaluate the fitness of an agent. """
-        return env.frames + env.score/env.frames# - (env.frames/env.score)
+        return env.frames #+ env.score/env.frames # - (env.frames/env.score)
 
 
     # parent selection function (--> new population --> next iteration in "main"/ga-algo loop)
@@ -71,50 +71,51 @@ if __name__ == "__main__":
         """ Fitness proportionate roulette wheel selection for selecting two parents for a new population."""
         # we need two parents
         parents = np.zeros((2, len(params[0,:])))
-        for p in range(2):
-            #print("fitness:", fitness)
-            # fitness proportions
-            fitness_prob = np.array(fitness)/sum(fitness)
-            #print("fit prob:", fitness_prob)
-            # fixed point on roulette wheel
-            rnd = random.uniform(0,1)
-            #print("point:", rnd)
+        parent_pairs = np.zeros((10, 2, len(params[0,:])))
+        for pp in range(10):
+            for p in range(2):
+                #print("fitness:", fitness)
+                # fitness proportions
+                fitness_prob = np.array(fitness)/sum(fitness)
+                #print("fit prob:", fitness_prob)
+                # fixed point on roulette wheel
+                rnd = random.uniform(0,1)
+                #print("point:", rnd)
+
+                # cumulative probabilities of agents (areas on the roulette wheel)
+                cum_prob = np.zeros(len(fitness_prob))
+                for i in range(len(fitness_prob)):
+                    for j in range(i+1):
+                        cum_prob[i] += fitness_prob[j]
+                #print("cum prob:", cum_prob)
+
+                # choose the parent on the roulette wheel
+                for idx, e in enumerate(cum_prob):
+                    if rnd <= e:
+                        #print("chosen prob:", e)
+                        parent = params[idx,:]
+                        #print("parent gene:", parent)
+                        fitness.pop(idx)
+                        params = np.delete(params, idx, axis=0)
+                        #print("rest params:", params)
+                        break
+
+                parents[p] = parent
+            parent_pairs[pp] = parents
+            #print("parent pairs:", parent_pairs)
             
-            # cumulative probabilities of agents (areas on the roulette wheel)
-            cum_prob = np.zeros(len(fitness_prob))
-            for i in range(len(fitness_prob)):
-                for j in range(i+1):
-                    cum_prob[i] += fitness_prob[j]
-            #print("cum prob:", cum_prob)
-            
-            # choose the parent on the roulette wheel
-            for idx, e in enumerate(cum_prob):
-                if rnd <= e:
-                    #print("chosen prob:", e)
-                    parent = params[idx,:]
-                    #print("parent gene:", parent)
-                    fitness.pop(idx)
-                    params = np.delete(params, idx, axis=0)
-                    #print("rest params:", params)
-                    break
-            
-            parents[p] = parent
-            #print("parents:", parents)
-            
-        return parents
+        return parent_pairs
     
     
     # crossover function
-    def crossover(parent1, parent2):
+    def crossover(parent_pairs):
         """ Create len(old_pop) children, each of which gets a chromosome with randomly assigned parent genes. """
-        new_pop = np.zeros((H.N_AGENTS, len(parent1)))
+        new_pop = np.zeros((H.N_AGENTS, len(parent_pairs[0,0,:])))
         for i in range(H.N_AGENTS):
-            for j in range(len(parent1)):
-                rnd = random.randint(0,1)
-                if rnd == 0:
-                    new_pop[i,j] = parent1[j]
-                else: 
-                    new_pop[i,j] = parent2[j]
+            for p in range(len(parent_pairs[:])):
+                for j in range(len(parent_pairs[0,0,:])):
+                    rnd = random.randint(0,1)
+                    new_pop[i,j] = parent_pairs[p,rnd,j]
         
         #print("after crossover:", new_pop)
         return new_pop
@@ -122,32 +123,15 @@ if __name__ == "__main__":
     
     # mutation function
     def mutate(old_pop):
-        """ Swap two genes on a child's chromosome with a small probability. """
-        '''
         new_pop = old_pop
         for child in range(len(new_pop)):
-            rnd = random.uniform(0,1)
-            if rnd <= H.MUTATION_RATE:
-                gene1 = random.randint(0, len(new_pop[child,:])-1)
-                gene2 = random.randint(0, len(new_pop[child,:])-1)
-                dummy = old_pop[i,gene1]
-                new_pop[i,gene1] = old_pop[i,gene2]
-                new_pop[i,gene2] = dummy
-        '''
-        
-        new_pop = old_pop
-        for child in range(len(new_pop)):
-            for gene in range(38):
+            for gene in range(len(old_pop[0,:])):
                 rnd = random.uniform(0,1)  #num of genes
                 if rnd <= 0.9:
                     rnd = random.uniform(0.1,0.5)
                     sign = [1,-1]
                     sampled_sign = random.choice(sign)
                     new_pop[child,gene] += new_pop[child,gene] * rnd * sampled_sign
-        
-        #for chil in range(len(new_pop)):
-            #rnd = random.uniform(0,1)
-            #if rnd >= 0.9:
 
         #print("after mutation:", new_pop)
         return new_pop
@@ -181,9 +165,8 @@ if __name__ == "__main__":
                     w2 = agent_list[i].linear2.weight.detach().numpy().flatten()
                     b1 = agent_list[i].linear1.bias.detach().numpy().flatten()
                     b2 = agent_list[i].linear2.bias.detach().numpy().flatten()
-
-                    params[i,:] = np.concatenate((w1, w2, b1, b2))
                     
+                    params[i,:] = np.concatenate((w1, w2, b1, b2))
                     fitness[i] = evaluate(env) 
 
             already_displayed = False
@@ -191,15 +174,14 @@ if __name__ == "__main__":
         else:
             # after generation is done, print results, add to plot and breed new population
             gen_counter += 1
-            print("Generation:", str(gen_counter) + ", Survival time (s):", np.array(fitness)//H.FPS)
+            print("Generation:", str(gen_counter) + ", Fitness:", np.array(fitness)//100)
             
             # plotting average results
             x.append(gen_counter+1)
-            y.append((sum(fitness)//H.FPS)/H.N_AGENTS)
-            print("x",x,"y",y)
+            y.append((sum(fitness)/H.N_AGENTS))
     
             parents = select(fitness, params)
-            new_pop = crossover(parents[0], parents[1])
+            new_pop = crossover(parents)
             new_pop = mutate(new_pop)
             params, env_list, agent_list, fitness, actions, already_displayed = populate()
 
