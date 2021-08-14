@@ -17,9 +17,8 @@ class Enemy(pygame.sprite.Sprite):
         self.img = pygame.image.load("images/meteorite.png")
         self.img = pygame.transform.scale(self.img, (self.scale, self.scale))
         
-        # Get initial random spawn position of enemy around the screen
-        self.pos_x = randint(-self.scale, 0) if randint(0,1) == 0 \
-                        else randint(H.WIDTH, H.WIDTH + self.scale)
+        # Get initial random spawn position of enemy around the screen (x along the whole width, y only outside the borders)
+        self.pos_x = randint(-self.scale, H.WIDTH + self.scale)
         self.pos_y = randint(-self.scale, 0) if randint(0,1) == 0 \
                         else randint(H.HEIGHT, H.HEIGHT + self.scale)
         # Moving direction: move to the right (down) if spawned on the left (top) and vice versa
