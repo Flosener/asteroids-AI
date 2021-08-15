@@ -2,7 +2,6 @@
 
 Hey there! We here implement an AI agent for the ATARI 'Asteroids' game in python using a simple PyTorch Feed-forward Neural Net and a genetic algorithm.
 
-</br>
 <img src="resources/Asteroids_Game.png" width="600"/>
 
 ### Quick starter
