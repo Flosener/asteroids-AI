@@ -12,27 +12,25 @@ Reinforcement learning is an area of machine learning where an agent observes it
 <p align="justify">
 In this implementation we use a Feed-forward neural network (FFNN) together with a genetic algorithm (GA) to train an agent to play the 'ATARI' arcade game asteroids. The genetic algorithm belong to the class of evolutionary algorithms and is inspired by natural selection. It thereby relies on biologically inspired operators like selection, crossover and mutation. The algorithm works as follows:
 
-<style type="text/css">
-    ol { list-style-type: upper-alpha; }
-- 0) Initialize a random population
-- 1) Evaluate its fitness
-- 2) Based on the agents' fitness, select parents to consequently create a next population
-- 3) Use biologically inspired operators like crossover and mutation on the new population
-- 4) Return to step 1
-</style>
+- Initialize a random population
+- Evaluate its fitness
+- Based on the agents' fitness, select parents to consequently create a next population
+- Use biologically inspired operators like crossover and mutation on the new population
+- Return to step 1
 
 This process is repeated until a stop condition is met, e.g. the agent successfully learned to achieve its goal and reach a high fitness value.
 </p>
 
 <img src="resources/ga_flowchart.png" width="600"/>
 <!-- https://www.researchgate.net/profile/Ahmadi-Abdeslam/publication/263224226/figure/fig2/AS:296412404305926@1447681632206/Genetic-algorithm-flowchart.png -->
+</br>
 
 ## Project flow
 
 <p align="justify"> 
 The inputs and outputs of the single scripts flow as follows:
 
-- 0) Initially, a population with a certain amount of agents is instantiated. The agents' brains are initialized with random weights.
+- Initially, a population with a certain amount of agents is instantiated. The agents' brains are initialized with random weights.
 - 1) In the environment, observations of the agent are collected and sent to the main() function (the genetic algorithm).
 - 2) Observations are sent to the agent's brain, which performs a forward pass in a feed-forward neural network.
 - 3) The output of the FFNN are the actions to be performed by the agent. They are sent to the GA.
@@ -45,6 +43,7 @@ The fitness is the survival time of each agent. The selection of the parents for
 </p>
 
 <img src="resources/flowdiagram.png" width="600"/>
+</br>
 
 ## Hyperparameters
 <p align="justify"> 
