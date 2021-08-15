@@ -4,7 +4,6 @@ Hey there! We here implement an AI agent for the ATARI 'Asteroids' game in pytho
 
 </br>
 <img src="resources/Asteroids_Game.png" width="600"/>
-</br>
 
 ### Quick starter
 
