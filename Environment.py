@@ -9,10 +9,10 @@ import helper as H
 
 
 class Environment(object):
-    """ The main game loop for getting observations and displaying the training. """
+    """ The environment / main game loop for getting observations and displaying the training. """
     
     def __init__(self):
-        """ Attributes of game object. """
+        """ Initialize an environment object. """
         self.shoot_count = 0
         self.time_count = 0
         self.frames = 0
@@ -26,12 +26,11 @@ class Environment(object):
         self.player = P.Player()
         self.objects.add(self.player)
     
+    
     def calculate_frame(self, action):
-        """ Main game loop. """
-        # Get keys for input checks
-        keys = pygame.key.get_pressed()
-
-        # Shooting only possible three times per second
+        """ Sends observations to the genetic algorithm and receives actions to send to the agent. """
+        
+        # Shooting is only possible three times per second
         if self.shoot_count >= H.FPS//3:
             if action[0] > 0.95:
                 # Spawn bullet from player and add to sprite groups for collision
@@ -40,8 +39,8 @@ class Environment(object):
                 self.bullets.add(bullet)
                 self.shoot_count = 0
 
-        # Spawn enemies with random size every 3 seconds
-        if self.time_count >= H.FPS*1:
+        # Spawn enemies with random size every 2 seconds
+        if self.time_count >= H.FPS*2:
             scale = sample([50, 100, 150], k=1)[0]
             enemy = E.Enemy(scale)
             self.objects.add(enemy)
@@ -85,65 +84,56 @@ class Environment(object):
                         enemy.kill()
                         self.score += 40
 
-        # If game is over, wait for player to restart or quit the game
-        if self.game_ended:
-            # Restart on 'r'
-            if keys[pygame.K_r]:
-                self.score = 0
-                self.player.pos_x, self.player.pos_y = H.WIDTH//2, H.HEIGHT//2
-                self.player.rect = self.player.img.get_rect(center=(self.player.pos_x, self.player.pos_y))
-                #BLTscreen.blit(self.player.img, self.player.rect)
-                self.game_ended = False
         else:
             # Draw background image onto screen at top left corner
             self.score_display = H.font_score.render(str(self.score), True, (255,255,255))
 
             # Update objects and draw on screen
             for obj in self.objects:
+                # only the player receives action inputs
                 if type(obj) == type(self.player):
                     obj.move(action[1], action[2])
                 else: obj.move()
 
-        # Increase time vars every update
+        # Counters for shooting, spawning enemies and fitness function
         self.time_count += 1
         self.shoot_count += 1
         self.frames += 1
 
-        # Update display every frame; to-do: only update one player's screen
+        # Update display every frame
         pygame.display.update()
         
         return self.get_obs(self.player, self.enemies)
     
     
     def get_obs(self, player, asteroids):
-        """ Get player observations (angle of the player and distances to asteroids) as inputs for the NN. """
+        """ Get player observations as inputs for the NN. """
+        
         angle = player.angle
         distances = []
         asteroids = list(asteroids)
 
-        # calculate distance to player for each asteroid
+        # Calculate distance to player for each asteroid
         for a in asteroids:
-            distance = math.sqrt((a.rect.center[0] - player.direction[0])**2 + (a.rect.center[1] - player.direction[1])**2) # falls nicht, dann einzeln
+            distance = math.sqrt((a.rect.center[0] - player.direction[0])**2 + (a.rect.center[1] - player.direction[1])**2)
             distances.append(distance)
 
         if len(distances) == 0:
             return angle
 
-        # if distances list is not empty, get mininmum distance and corresponding asteroid
+        # If distances list is not empty, get mininmum distance and corresponding asteroid
         min_distance = min(distances)
         min_idx = distances.index(min_distance)
         a = asteroids[min_idx]
 
-        # get two vectors and calculate angle between spaceship and closest asteroid
+        # Get two vectors and calculate angle between spaceship and closest asteroid
         u_x = player.direction[0] - player.rect.center[0]
         u_y = player.direction[1] - player.rect.center[1]
         v_x = a.rect.center[0] - player.direction[0]
         v_y = a.rect.center[1] - player.direction[1]
-
         closest_angle = math.degrees(math.acos(np.dot(np.array([u_x, u_y]), np.array([v_x, v_y]))
                                              / np.dot(np.linalg.norm(np.array([u_x, u_y])), np.linalg.norm(np.array([v_x, v_y])))))
 
-        # return inputs for NN
         return np.array([angle, min_distance, closest_angle], dtype=np.float32)
     
     

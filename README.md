@@ -1,12 +1,17 @@
-# Asteroids
+# Asteroids AI with Genetic Algorithm
 
-Hey there! For a course at our university, we implement the ATARI 'Asteroids' game with python and the pygame library.
+Hey there! We here implement an AI agent for the ATARI 'Asteroids' game in python using a simple PyTorch Feed-forward Neural Net and a genetic algorithm.
 
-### How to use this game
+### Quick starter
 
-- Clone this repository: $ git clone https://github.com/Flosener/asteroids
-- Install required packages (only pygame): $ pip install pygame
-- Execute the game: $ python3 asteroids.py
-- Choose a difficulty (1, 2 or 3) in the console.
+- Clone this repository: $ git clone https://github.com/me-daniel/asteroids.git
+- Install required packages: $ pip install -r requirements.txt
+- Execute the genetic algorithm: $ python3 genetic_algorithm.py
 
-And that's it - have fun playing!
+In the documentation.md you can find an elaborate description of the project's goal, programming journey and customizabilities.
+For a singleplayer version of the game, go to https://github.com/flosener/asteroids.
+And that's it - have fun watching the agent learn!
+
+</br>
+<img src="resources/Asteroids_Game.png" width="600"/>
+</br>

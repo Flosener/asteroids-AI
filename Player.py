@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         # Load and scale player image
         self.scale = 50
         # spaceship: https://www.flaticon.com/free-icon/spaceship_901787
-        self.image = pygame.image.load("images/spaceship.png")
+        self.image = pygame.image.load("resources/spaceship.png")
         self.image = pygame.transform.scale(self.image, (self.scale, self.scale))
         
         # Get inital position of player in middle of screen
@@ -49,15 +49,13 @@ class Player(pygame.sprite.Sprite):
         if self.pos_y >= H.HEIGHT:
             self.pos_y = H.HEIGHT
         
-        keys = pygame.key.get_pressed()
-        
-        # Moving forward
+        # Moving forward with inputs from NN
         if thrust > 0.95:
             self.pos_x += self.cos * self.speed
             self.pos_y -= self.sin * self.speed
             self.update_direction()
             
-        # Rotating
+        # Rotating with inputs from NN
         if rotate < -0.95 or rotate > 0.95:
             self.angle += 5 * rotate
             self.update_direction()

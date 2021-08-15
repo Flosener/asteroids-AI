@@ -1,0 +1,6 @@
+pygame
+torch
+numpy
+random
+matplotlib
+math

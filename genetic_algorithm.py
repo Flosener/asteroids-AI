@@ -4,8 +4,8 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import Environment as E
-import helper as H
 import Agent as A
+import helper as H
 
 
 # Main guard prevents running on import
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # pygame screen settings
     pygame.display.set_caption("Asteroids")
     # Asteroid icon: https://www.flaticon.com/free-icon/meteorite_4260653?term=asteroids&related_id=4260653
-    img = pygame.image.load("images/meteorite.png")
+    img = pygame.image.load("resources/meteorite.png")
     pygame.display.set_icon(img)
     
     # device config
@@ -123,6 +123,17 @@ if __name__ == "__main__":
     
     # mutation function
     def mutate(old_pop):
+        """
+        new_pop = old_pop
+        for child in range(len(new_pop)):
+            rnd = random.uniform(0,1)
+            if rnd <= H.MUTATION_RATE:
+                gene1 = random.randint(0, len(new_pop[child,:])-1)
+                gene2 = random.randint(0, len(new_pop[child,:])-1)
+                dummy = old_pop[i,gene1]
+                new_pop[i,gene1] = old_pop[i,gene2]
+                new_pop[i,gene2] = dummy
+        """
         new_pop = old_pop
         for child in range(len(new_pop)):
             for gene in range(len(old_pop[0,:])):
@@ -146,6 +157,10 @@ if __name__ == "__main__":
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+        
+        # stop training after n epochs
+        if gen_counter >= H.N_EPOCHS:
+            break
         
         # for one population
         if None in fitness:
@@ -199,4 +214,6 @@ if __name__ == "__main__":
     # Quit the game after application is not 'running' anymore
     pygame.quit()
     ax.plot(x, y)
+    plt.xlabel("Generation")
+    plt.ylabel("Average fitness")
     plt.show()
