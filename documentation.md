@@ -23,7 +23,6 @@ This process is repeated until a stop condition is met, e.g. the agent successfu
 
 <img src="resources/ga_flowchart.png" width="600"/>
 <!-- https://www.researchgate.net/profile/Ahmadi-Abdeslam/publication/263224226/figure/fig2/AS:296412404305926@1447681632206/Genetic-algorithm-flowchart.png -->
-</br>
 
 ## Project flow
 
@@ -43,7 +42,6 @@ The fitness is the survival time of each agent. The selection of the parents for
 </p>
 
 <img src="resources/flowdiagram.png" width="600"/>
-</br>
 
 ## Hyperparameters
 <p align="justify"> 
